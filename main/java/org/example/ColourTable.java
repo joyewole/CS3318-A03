@@ -1,29 +1,28 @@
 package org.example;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-public class ColourTable {
+    public class ColourTable {
 
     private final int paletteSize;
     private final Set<Integer> colourPalette;
 
     public ColourTable(int paletteSize) {
-        if (!isValidPaletteSize(paletteSize)) {
-            throw new IllegalArgumentException("Invalid palette size");
-        }
-
+        validatePaletteSize(paletteSize);
         this.paletteSize = paletteSize;
         this.colourPalette = new HashSet<>();
     }
 
     public void add(int rgbColor) {
-        if (!isValidRGBValue(rgbColor) || colourPalette.size() >= paletteSize) {
-            throw new IllegalStateException("Invalid RGB value or exceeding capacity");
+        validateRGBValue(rgbColor);
+        if (colourPalette.size() >= paletteSize) {
+            throw new IllegalStateException("Exceeding capacity");
         }
 
         if (!colourPalette.add(rgbColor)) {
-            throw new IllegalStateException("Duplicate color");
+            throw new DuplicateColorException("Duplicate color");
         }
     }
 
@@ -31,21 +30,31 @@ public class ColourTable {
         return colourPalette.size();
     }
 
-    private boolean isValidPaletteSize(int size) {
-        return size > 1 && size < 1025 && (size & (size - 1)) == 0; // Check if it's a power of two
+    private void validatePaletteSize(int size) {
+        if (size <= 1 || size >= 1025 || (size & (size - 1)) != 0) {
+            throw new IllegalArgumentException("Invalid palette size");
+        }
     }
 
-    private boolean isValidRGBValue(int rgbColor) {
-        // Implement your validation logic for 24-bit RGB values
-        return rgbColor >= 0 && rgbColor <= 0xFFFFFF; // Placeholder for demonstration
+    private void validateRGBValue(int rgbColor) {
+        if (rgbColor < 0 || rgbColor > 0xFFFFFF) {
+            throw new IllegalArgumentException("Invalid RGB value");
+        }
     }
 
-    //Implement equals method
     @Override
     public boolean equals(Object obj) {
-        // Implement your equals logic
-        return super.equals(obj);
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ColourTable that = (ColourTable) obj;
+        return paletteSize == that.paletteSize && Objects.equals(colourPalette, that.colourPalette);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(paletteSize, colourPalette);
     }
 }
+
 
 
