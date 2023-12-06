@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 public class ColourTableTest {
 
     ColourTable colour;
@@ -16,46 +17,75 @@ public class ColourTableTest {
     }
 
     @Test
-    @DisplayName("Colour with three float argument with correct local variable value")
-    void checkAssignedValuesFromThreeArgumentConstructor(){
+    @DisplayName("Invalid palette size throws IllegalArgumentException")
+    void checkInvalidPaletteSizeConstructor() {
         assertThrows(IllegalArgumentException.class, () -> new ColourTable(2));
     }
 
     @Test
-    @DisplayName("Colour with one argument is not null")
-    void checkColourOneArgumentConstructor(){
-        colour = new ColourTable(43);
+    @DisplayName("Colour with valid palette size is not null")
+    void checkColourConstructorWithValidPaletteSize() {
+        colour = new ColourTable(8);
         assertNotNull(colour);
     }
 
     @Test
-    @DisplayName("Colour with one argument with correct value assigned to local variables")
-    void checkAssignedValuesFromOneArgumentConstructor(){
-        colour = new ColourTable(2364334);
-        assertEquals(colour.getRed(), 36);
-        assertEquals(colour.getGreen(), 19);
-        assertEquals(colour.getBlue(), 174);
+    @DisplayName("Palette size zero throws IllegalArgumentException")
+    void checkPaletteSizeZeroConstructor() {
+        assertThrows(IllegalArgumentException.class, () -> new ColourTable(0));
     }
 
     @Test
-    @DisplayName("Colour with no argument throws an exception")
-    void checkNoArgumentConstructor(){
-        assertThrows(Exception.class, () -> new ColourTable(0.0));
+    @DisplayName("Palette size exceeding limit throws IllegalArgumentException")
+    void checkPaletteSizeExceedLimitConstructor() {
+        assertThrows(IllegalArgumentException.class, () -> new ColourTable(1025));
     }
 
     @Test
-    @DisplayName("Colour of same components are the same")
-    void equalColours(){
-        colour = new ColourTable(0.5);
-        ColourTable colour1 = new ColourTable(0.5);
-        ColourTable colour2 = new ColourTable(0.5);
+    @DisplayName("Adding color to ColourTable with valid palette size does not throw an exception")
+    void addColorToValidPaletteSize() {
+        colour = new ColourTable(4);
+        assertDoesNotThrow(() -> colour.add(0xFF0000));
+        assertEquals(1, colour.getSize());
+    }
+
+    @Test
+    @DisplayName("Adding color to ColourTable exceeding capacity throws IllegalStateException")
+    void addColorExceedingCapacity() {
+        colour = new ColourTable(2);
+        assertDoesNotThrow(() -> colour.add(0xFF0000));
+        assertDoesNotThrow(() -> colour.add(0x00FF00));
+        assertThrows(IllegalStateException.class, () -> colour.add(0x0000FF));
+    }
+
+    @Test
+    @DisplayName("Adding invalid RGB color throws IllegalArgumentException")
+    void addInvalidRGBColor() {
+        colour = new ColourTable(4);
+        assertThrows(IllegalArgumentException.class, () -> colour.add(-1));
+    }
+
+    @Test
+    @DisplayName("Adding duplicate color throws DuplicateColorException")
+    void addDuplicateColor() {
+        colour = new ColourTable(4);
+        assertDoesNotThrow(() -> colour.add(0xFF0000));
+        assertThrows(DuplicateColorException.class, () -> colour.add(0xFF0000));
+    }
+
+    @Test
+    @DisplayName("Colors with the same components are equal")
+    void equalColours() {
+        colour = new ColourTable(16);
+        ColourTable colour1 = new ColourTable(24);
+        ColourTable colour2 = new ColourTable(8);
         ColourTable colour3 = new ColourTable(12);
         ColourTable colour4 = new ColourTable(12);
-        ColourTable colour5 = new ColourTable(15);
+        ColourTable colour5 = new ColourTable(16);
 
-        assertTrue(colour.equals(colour1));
-        assertFalse(colour.equals(colour2));
-        assertFalse(colour4.equals(colour5));
-        assertTrue(colour3.equals(colour4));
+        assertEquals(colour, colour1);
+        assertNotEquals(colour, colour2);
+        assertNotEquals(colour4, colour5);
+        assertEquals(colour3, colour4);
     }
 }
