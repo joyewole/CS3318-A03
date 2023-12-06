@@ -39,4 +39,13 @@ public class ColourTable {
         // Implement your validation logic for 24-bit RGB values
         return rgbColor >= 0 && rgbColor <= 0xFFFFFF; // Placeholder for demonstration
     }
+
+    //Implement equals method
+    @Override
+    public boolean equals(Object obj) {
+        // Implement your equals logic
+        return super.equals(obj);
+    }
 }
+
+
